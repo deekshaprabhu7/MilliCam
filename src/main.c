@@ -8,6 +8,12 @@
 #include <zephyr/drivers/gpio.h>
 #include <zephyr/drivers/i2c.h>
 #include <zephyr/sys/printk.h>
+#include <hal/nrf_gpiote.h>
+#include <hal/nrf_timer.h>
+#include <hal/nrf_dppi.h>
+
+#include "hm01b0_clk.h"
+#include "gpio.h"
 
 //#include <zephyr/drivers/video.h>
 //#include <zephyr/drivers/video/arducam_mega.h>
@@ -96,10 +102,20 @@ const struct app_bt_cb app_bt_callbacks = {
 	.change_resolution = app_bt_change_resolution_callback,
 };
 
+int m_clk_err;
+
+
 int main(void)
 {
 
 	int ret;
+
+	gpio0 = device_get_binding(DEVICE_DT_NAME(DT_NODELABEL(gpio0)));
+    gpio1 = device_get_binding(DEVICE_DT_NAME(DT_NODELABEL(gpio1)));
+
+	m_clk_err =  gpio_pin_configure(gpio0, OUTPUT_PIN, GPIO_OUTPUT | GPIO_OUTPUT_INIT_LOW);
+
+	clk_init();
 
 	ret = app_bt_init(&app_bt_callbacks);
 	if (ret < 0) {
