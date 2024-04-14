@@ -1,7 +1,7 @@
 &i2c1 {
-    mysensor: mysensor@4a{
+    hm01b0: hm01b0@24{
         compatible = "i2c-device";
         reg = < 0x24 >;
-        label = "MYSENSOR";
+        label = "HM01B0";
     };
 };

@@ -116,6 +116,7 @@ int main(void)
 	m_clk_err =  gpio_pin_configure(gpio0, OUTPUT_PIN, GPIO_OUTPUT | GPIO_OUTPUT_INIT_LOW);
 
 	clk_init();
+	i2c_init();
 
 	ret = app_bt_init(&app_bt_callbacks);
 	if (ret < 0) {
