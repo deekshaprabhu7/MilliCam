@@ -8,17 +8,9 @@
  *                       This parameter can be used to pass additional information to the handler
  *                       function for example the timer ID.
  */
-static void timer_handler(nrf_timer_event_t event_type, void * p_context)
-{
-    if (event_type == NRF_TIMER_EVENT_COMPARE0)
-    {
-        char * p_msg = p_context;
-       //NRFX_LOG_INFO("Timer finished. Context passed to the handler: >%s<", p_msg);
-        //NRFX_LOG_INFO("GPIOTE output pin: %d is %s", OUTPUT_PIN,
-        nrfx_gpiote_in_is_set(OUTPUT_PIN) ? "high" : "low";
-    }
-}
 
+// Dummy Timer Handler
+static void timer_handler(nrf_timer_event_t event_type, void * p_context){}
 
 int clk_init()
 {
@@ -85,6 +77,7 @@ int clk_init()
     /* Creating variable desired_ticks to store the output of nrfx_timer_ms_to_ticks function. */
     uint32_t desired_ticks = nrfx_timer_ms_to_ticks(&timer_inst, TIME_TO_WAIT_MS);
     //NRFX_LOG_INFO("Time to wait: %lu ms", TIME_TO_WAIT_MS);
+    desired_ticks = 1UL;
 
     /*
      * Setting the timer channel NRF_TIMER_CC_CHANNEL0 in the extended compare mode to clear
@@ -92,7 +85,7 @@ int clk_init()
      * desired_ticks.
      */
     nrfx_timer_extended_compare(&timer_inst, NRF_TIMER_CC_CHANNEL0, desired_ticks,
-                                NRF_TIMER_SHORT_COMPARE0_CLEAR_MASK, true);
+                                NRF_TIMER_SHORT_COMPARE0_CLEAR_MASK, false);
 
     status = nrfx_gppi_channel_alloc(&gppi_channel);
     NRFX_ASSERT(status == NRFX_SUCCESS);

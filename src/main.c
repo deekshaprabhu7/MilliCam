@@ -19,6 +19,7 @@
 //#include <zephyr/drivers/video/arducam_mega.h>
 #include "app_bluetooth.h"
 #include <zephyr/logging/log.h>
+
 LOG_MODULE_REGISTER(millicam, CONFIG_LOG_DEFAULT_LEVEL);
 
 /* 1000 msec = 1 sec */
