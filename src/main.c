@@ -14,6 +14,7 @@
 
 #include "hm01b0_clk.h"
 #include "gpio.h"
+#include "hm01b0_capture.h"
 
 //#include <zephyr/drivers/video.h>
 //#include <zephyr/drivers/video/arducam_mega.h>
@@ -27,8 +28,6 @@ LOG_MODULE_REGISTER(millicam, CONFIG_LOG_DEFAULT_LEVEL);
 
 #define FRAME_VALID_PIN 24 //gpio0 //gpio pin definition
 #define TEST_PIN 25
-
-#define I2C1_NODE DT_NODELABEL(mysensor) //i2c1
 
 #define RESET_CAMERA 0XFF
 #define SET_PICTURE_RESOLUTION 0X01
@@ -118,6 +117,7 @@ int main(void)
 
 	clk_init();
 	i2c_init();
+	hm01b0_init();
 
 	ret = app_bt_init(&app_bt_callbacks);
 	if (ret < 0) {

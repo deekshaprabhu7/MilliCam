@@ -75,14 +75,13 @@ int clk_init()
     nrfx_timer_clear(&timer_inst);
 
     /* Creating variable desired_ticks to store the output of nrfx_timer_ms_to_ticks function. */
-    uint32_t desired_ticks = nrfx_timer_ms_to_ticks(&timer_inst, TIME_TO_WAIT_MS);
+    // uint32_t desired_ticks = nrfx_timer_ms_to_ticks(&timer_inst, TIME_TO_WAIT_MS);
     //NRFX_LOG_INFO("Time to wait: %lu ms", TIME_TO_WAIT_MS);
-    desired_ticks = 1UL;
+    uint32_t desired_ticks = 1UL;
 
     /*
      * Setting the timer channel NRF_TIMER_CC_CHANNEL0 in the extended compare mode to clear
-     * the timer and to trigger an interrupt if the internal counter register is equal to
-     * desired_ticks.
+     * the timer.
      */
     nrfx_timer_extended_compare(&timer_inst, NRF_TIMER_CC_CHANNEL0, desired_ticks,
                                 NRF_TIMER_SHORT_COMPARE0_CLEAR_MASK, false);
@@ -104,4 +103,4 @@ int clk_init()
    // NRFX_LOG_INFO("Timer status: %s", nrfx_timer_is_enabled(&timer_inst) ? "enabled" : "disabled");
 
     return 0;
-} 
+}
