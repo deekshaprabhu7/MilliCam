@@ -26,9 +26,6 @@ LOG_MODULE_REGISTER(millicam, CONFIG_LOG_DEFAULT_LEVEL);
 /* 1000 msec = 1 sec */
 #define SLEEP_TIME_MS   100 //LED Blink interval
 
-#define FRAME_VALID_PIN 24 //gpio0 //gpio pin definition
-#define TEST_PIN 25
-
 #define RESET_CAMERA 0XFF
 #define SET_PICTURE_RESOLUTION 0X01
 #define SET_VIDEO_RESOLUTION 0X02
@@ -58,11 +55,6 @@ LOG_MODULE_REGISTER(millicam, CONFIG_LOG_DEFAULT_LEVEL);
 ** https://www.arducam.com/docs/arducam-mega/arducam-mega-getting-started/packs/HostCommunicationProtocol.html
 */
 #define COMMAND_MAX_SIZE 6
-
-const struct device *gpio0;
-const struct device *gpio1;
-
-
 
 void app_bt_connected_callback(void)
 {	
@@ -102,7 +94,6 @@ const struct app_bt_cb app_bt_callbacks = {
 	.change_resolution = app_bt_change_resolution_callback,
 };
 
-int m_clk_err;
 
 
 int main(void)
@@ -110,11 +101,7 @@ int main(void)
 
 	int ret;
 
-	gpio0 = device_get_binding(DEVICE_DT_NAME(DT_NODELABEL(gpio0)));
-    gpio1 = device_get_binding(DEVICE_DT_NAME(DT_NODELABEL(gpio1)));
-
-	m_clk_err =  gpio_pin_configure(gpio0, OUTPUT_PIN, GPIO_OUTPUT | GPIO_OUTPUT_INIT_LOW);
-
+	gpio_init();
 	clk_init();
 	i2c_init();
 	hm01b0_init();

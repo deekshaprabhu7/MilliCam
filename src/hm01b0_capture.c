@@ -19,4 +19,8 @@ void hm01b0_init(void)
 
     hm_i2c_write( REG_MODE_SELECT, 0x00); //go to stand by mode
 
+    gpio_pin_set(gpio1, CAM_SPI_CS_PIN, HIGH);
+
+    /*Camera settings initialization*/
+    hm01b0_init_fixed_rom_qvga_fixed();
 }

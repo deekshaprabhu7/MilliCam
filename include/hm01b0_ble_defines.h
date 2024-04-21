@@ -1,0 +1,6 @@
+#ifndef HM01B0_BLE_DEFINES_H
+#define HM01B0_BLE_DEFINES_H
+
+#define TEST_PATTERN 0x00
+
+#endif

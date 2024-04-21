@@ -58,10 +58,10 @@ int clk_init()
         .init_val = NRF_GPIOTE_INITIAL_VALUE_HIGH,
     };
 
-    status = nrfx_gpiote_output_configure(OUTPUT_PIN, &output_config, &task_config);
+    status = nrfx_gpiote_output_configure(MCLK_PIN, &output_config, &task_config);
     NRFX_ASSERT(status == NRFX_SUCCESS);
 
-    nrfx_gpiote_out_task_enable(OUTPUT_PIN);
+    nrfx_gpiote_out_task_enable(MCLK_PIN);
 
     nrfx_timer_t timer_inst = NRFX_TIMER_INSTANCE(TIMER_INST_IDX);
     uint32_t base_frequency = NRF_TIMER_BASE_FREQUENCY_GET(timer_inst.p_reg);
@@ -95,7 +95,7 @@ int clk_init()
      */
     nrfx_gppi_channel_endpoints_setup(gppi_channel,
         nrfx_timer_compare_event_address_get(&timer_inst, NRF_TIMER_CC_CHANNEL0),
-        nrfx_gpiote_out_task_address_get(OUTPUT_PIN));
+        nrfx_gpiote_out_task_address_get(MCLK_PIN));
 
     nrfx_gppi_channels_enable(BIT(gppi_channel));
 
