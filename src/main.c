@@ -50,6 +50,8 @@ LOG_MODULE_REGISTER(millicam, CONFIG_LOG_DEFAULT_LEVEL);
 #define SET_IMAGE_QUALITY 0X50
 #define SET_LOWPOWER_MODE 0X60
 
+uint32_t CAM_LINE_VLD;
+
 /*
 ** Arducam mega communication protocols
 ** https://www.arducam.com/docs/arducam-mega/arducam-mega-getting-started/packs/HostCommunicationProtocol.html
@@ -103,6 +105,7 @@ int main(void)
 
 	gpio_init();
 	clk_init();
+	gpio_setting_init();
 	i2c_init();
 	hm01b0_init();
 
