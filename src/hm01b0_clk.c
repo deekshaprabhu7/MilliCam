@@ -63,19 +63,19 @@ int clk_init()
 
     nrfx_gpiote_out_task_enable(MCLK_PIN);
 
-    nrfx_timer_t timer_inst = NRFX_TIMER_INSTANCE(TIMER_INST_IDX);
+    nrfx_timer_t CAM_TIMER = NRFX_TIMER_INSTANCE(TIMER_INST_IDX);
     uint32_t base_frequency = NRF_TIMER_BASE_FREQUENCY_GET(timer_inst.p_reg);
     nrfx_timer_config_t timer_config = NRFX_TIMER_DEFAULT_CONFIG(base_frequency);
     timer_config.bit_width = NRF_TIMER_BIT_WIDTH_32;
     timer_config.p_context = "Some context";
 
-    status = nrfx_timer_init(&timer_inst, &timer_config, timer_handler);
+    status = nrfx_timer_init(&CAM_TIMER, &timer_config, timer_handler);
     NRFX_ASSERT(status == NRFX_SUCCESS);
 
-    nrfx_timer_clear(&timer_inst);
+    nrfx_timer_clear(&CAM_TIMER);
 
     /* Creating variable desired_ticks to store the output of nrfx_timer_ms_to_ticks function. */
-    // uint32_t desired_ticks = nrfx_timer_ms_to_ticks(&timer_inst, TIME_TO_WAIT_MS);
+    // uint32_t desired_ticks = nrfx_timer_ms_to_ticks(&CAM_TIMER, TIME_TO_WAIT_MS);
     //NRFX_LOG_INFO("Time to wait: %lu ms", TIME_TO_WAIT_MS);
     uint32_t desired_ticks = 1UL;
 
@@ -83,7 +83,7 @@ int clk_init()
      * Setting the timer channel NRF_TIMER_CC_CHANNEL0 in the extended compare mode to clear
      * the timer.
      */
-    nrfx_timer_extended_compare(&timer_inst, NRF_TIMER_CC_CHANNEL0, desired_ticks,
+    nrfx_timer_extended_compare(&CAM_TIMER, NRF_TIMER_CC_CHANNEL0, desired_ticks,
                                 NRF_TIMER_SHORT_COMPARE0_CLEAR_MASK, false);
 
     status = nrfx_gppi_channel_alloc(&gppi_channel);
@@ -94,12 +94,12 @@ int clk_init()
      * pin OUT task. This means that each time the timer interrupt occurs, the LED pin will be toggled.
      */
     nrfx_gppi_channel_endpoints_setup(gppi_channel,
-        nrfx_timer_compare_event_address_get(&timer_inst, NRF_TIMER_CC_CHANNEL0),
+        nrfx_timer_compare_event_address_get(&CAM_TIMER, NRF_TIMER_CC_CHANNEL0),
         nrfx_gpiote_out_task_address_get(MCLK_PIN));
 
     nrfx_gppi_channels_enable(BIT(gppi_channel));
 
-    nrfx_timer_enable(&timer_inst);
+    nrfx_timer_enable(&CAM_TIMER);
    // NRFX_LOG_INFO("Timer status: %s", nrfx_timer_is_enabled(&timer_inst) ? "enabled" : "disabled");
 
     return 0;

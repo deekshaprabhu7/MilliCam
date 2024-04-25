@@ -108,6 +108,7 @@ int main(void)
 	gpio_setting_init();
 	i2c_init();
 	hm01b0_init();
+	lvld_timer_init();
 
 	ret = app_bt_init(&app_bt_callbacks);
 	if (ret < 0) {

@@ -2,8 +2,9 @@
 #define GPIO_H
 
 #include <zephyr/drivers/gpio.h>
+#include <zephyr/kernel.h>
 #include <nrfx_gpiote.h>
-#include <hal/nrf_gpio.h>
+#include "hm01b0_lvld_timer.h"
 
 /* 1000 msec = 1 sec */
 #define SLEEP_TIME_MS   100 //LED Blink interval
@@ -17,6 +18,7 @@
 //#define MCLK_PIN NRF_GPIO_PIN_MAP(0, 27) //gpio0
 #define MCLK_PIN 26 //gpio0
 #define CAM_SPI_CS_PIN 11 //gpio1
+#define DUMMY_CS_PIN 12
 //Reserved P1.12 for SPI CS
 
 
