@@ -16,6 +16,8 @@ uint32_t line_count;
 uint16_t m_length_rx_done = 0;
 uint8_t image_rd_done = 0;
 
+bool acc_rec_flag;
+
 int gpio_init()
 {
     gpio0 = device_get_binding(DEVICE_DT_NAME(DT_NODELABEL(gpio0)));
@@ -55,8 +57,7 @@ static void in_pin_handler_line_vld(nrfx_gpiote_pin_t pin, nrfx_gpiote_trigger_t
         nrfx_timer_disable(&TIMER_LVLD);
         //gpio_p_reg->OUTSET = CAM_SPI_PIN_MASK; //DEEKSHA enable this
 
-
-//Deeksha: Enable these #define
+        //Deeksha: Enable these #define
         #if (FRAME_VLD_INT == 1)
 
           #if defined(BOARD_PCA10056)
@@ -119,8 +120,7 @@ void gpio_setting_init(void)
 
     nrfx_gpiote_trigger_enable(FRAME_VALID_PIN, true);
 
-    static const nrfx_gpiote_input_config_t in_config_linevld =
-    {
+    static const nrfx_gpiote_input_config_t in_config_linevld = {
         .pull = NRF_GPIO_PIN_NOPULL,
     };
 

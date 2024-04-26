@@ -31,6 +31,8 @@ extern uint32_t line_count;
 extern uint16_t m_length_rx_done;
 extern uint8_t image_rd_done;
 
+extern bool acc_rec_flag;
+
 int gpio_init();
 void gpio_setting_init(void);
 //static void in_pin_handler_frame_vld(nrfx_gpiote_pin_t pin, nrfx_gpiote_trigger_t trigger);
