@@ -5,6 +5,8 @@
 #include <zephyr/kernel.h>
 #include <nrfx_gpiote.h>
 #include "hm01b0_lvld_timer.h"
+#include "hm01b0_capture.h"
+#include "hm01b0_ble_defines.h"
 
 /* 1000 msec = 1 sec */
 #define SLEEP_TIME_MS   100 //LED Blink interval
@@ -27,6 +29,7 @@ extern const struct device *gpio1;
 
 extern uint32_t line_count;
 extern uint16_t m_length_rx_done;
+extern uint8_t image_rd_done;
 
 int gpio_init();
 void gpio_setting_init(void);

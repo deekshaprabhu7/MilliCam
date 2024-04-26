@@ -51,6 +51,7 @@ LOG_MODULE_REGISTER(millicam, CONFIG_LOG_DEFAULT_LEVEL);
 #define SET_LOWPOWER_MODE 0X60
 
 uint32_t CAM_LINE_VLD;
+uint8_t LINE_NUM = ROW_INIT;
 
 /*
 ** Arducam mega communication protocols

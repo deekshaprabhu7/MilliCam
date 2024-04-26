@@ -1,10 +1,10 @@
+#ifndef HM01B0_CLK_H
+#define HM01B0_CLK_H
 
 #include <helpers/nrfx_gppi.h>
 #include <nrfx_timer.h>
 #include <nrfx_gpiote.h>
 #include "gpio.h"
-
-
 
 //#define NRFX_LOG_MODULE                 EXAMPLE
 //#define NRFX_EXAMPLE_CONFIG_LOG_ENABLED 1
@@ -31,3 +31,5 @@
 
 
 int clk_init();
+
+#endif

@@ -6,6 +6,8 @@
 #include "gpio.h"
 #include "hm01b0_func.h"
 
+extern uint32_t ble_bytes_sent_counter;
+
 void hm01b0_init(void);
 
 #endif

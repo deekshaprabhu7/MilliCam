@@ -14,6 +14,7 @@ int dummy_spi_gpio_err = 0;
 
 uint32_t line_count;
 uint16_t m_length_rx_done = 0;
+uint8_t image_rd_done = 0;
 
 int gpio_init()
 {
@@ -35,22 +36,50 @@ static void in_pin_handler_frame_vld(nrfx_gpiote_pin_t pin, nrfx_gpiote_trigger_
     line_count = 0;
     m_length_rx_done = 0;
     nrfx_timer_enable(&TIMER_LVLD);
-    //lvld_timer_run(&TIMER_LVLD); DEEKSHA UNCOMMENT
-    //gpio_pin_set(gpio1, CAM_SPI_CS_PIN, 0);
-    LOG_INF("test");
+    gpio_pin_set(gpio1, CAM_SPI_CS_PIN, 0);
 }
 
 static void in_pin_handler_line_vld(nrfx_gpiote_pin_t pin, nrfx_gpiote_trigger_t trigger, void *p_context)
 {
     //nrf_gpiote_event_disable(FRAME_VALID_PIN); //DEEKSHA Check this
 
-    //line_count = 0;
-    //m_length_rx_done = 0;
-    //lvld_timer_run(&TIMER_LVLD); DEEKSHA UNCOMMENT
-    //gpio_pin_set(gpio1, CAM_SPI_CS_PIN, 0);
-    LOG_INF("test2");
+    if (line_count<LINE_NUM){
+    // here we need to activate SPI CS; enable the lvld_timer; and activate the line_vld interrupt; increase the counter of lines
+        nrfx_timer_enable(&TIMER_LVLD);
+        //gpio_p_reg->OUTCLR = CAM_SPI_PIN_MASK; //DEEKSHA enable this
+        line_count++;
+        }
+    else{
+        nrfx_gpiote_trigger_disable(LINE_VALID_PIN);
+        nrfx_gpiote_trigger_disable(FRAME_VALID_PIN);
+        nrfx_timer_disable(&TIMER_LVLD);
+        //gpio_p_reg->OUTSET = CAM_SPI_PIN_MASK; //DEEKSHA enable this
 
-    gpio_pin_set(gpio1, CAM_SPI_CS_PIN, HIGH);
+
+//Deeksha: Enable these #define
+        #if (FRAME_VLD_INT == 1)
+
+          #if defined(BOARD_PCA10056)
+          m_length_rx_done = m_length_rx;
+          #endif
+
+          #if defined(BOARD_PCA10040)
+          m_length_rx_done = total_image_size;
+          #endif
+          ble_bytes_sent_counter = 0;
+
+        /*SPI registers initilization*/
+          #if (MEM_INIT == 1)
+            memset(m_rx_buf, MEM_INIT_VALUE, total_image_size);
+          #endif
+          #if (defined(CAMERA_DEBUG) && (CAMERA_DEBUG == 1))
+              nrfx_gpiote_trigger_enable(FRAME_VALID_PIN, true);
+              //APP_ERROR_CHECK(nrf_drv_spis_buffers_set(&spis, m_tx_buf, m_length_tx, m_rx_buf, m_length_rx)); //DEEKSHA rewrite this for new SPI driver
+          #endif
+        #endif
+        image_rd_done = 1;
+    }
+    LOG_INF("test2");
 }
 
 

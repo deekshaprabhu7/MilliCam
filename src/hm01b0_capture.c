@@ -3,6 +3,8 @@
 
 LOG_MODULE_REGISTER(hm01b0capture, CONFIG_LOG_DEFAULT_LEVEL);
 
+uint32_t ble_bytes_sent_counter = 0; //DEEKSHA define it in some other file?
+
 void hm01b0_init(void)
 {
     /*Test if camera is functional*/
