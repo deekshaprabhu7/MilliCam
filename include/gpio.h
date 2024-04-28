@@ -19,16 +19,17 @@
 #define LINE_VALID_PIN 25 //gpio0
 //#define MCLK_PIN NRF_GPIO_PIN_MAP(0, 27) //gpio0
 #define MCLK_PIN 26 //gpio0
-#define CAM_SPI_CS_PIN 11 //gpio1
-#define DUMMY_CS_PIN 12
-//Reserved P1.12 for SPI CS
+#define CAM_SPI_GPIO_CS_PIN 11 //gpio1
+#define CAM_SPI_CS_PIN 12 //gpio1
+#define CAM_SPI_MOSI_PIN 13 //gpio1
+#define CAM_SPI_MISO_PIN 14 //gpio1
+#define CAM_SPI_SCK_PIN 15 //gpio1
 
 
 extern const struct device *gpio0;
 extern const struct device *gpio1;
 
 extern uint32_t line_count;
-extern uint16_t m_length_rx_done;
 extern uint8_t image_rd_done;
 
 extern bool acc_rec_flag;

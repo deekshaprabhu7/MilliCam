@@ -15,6 +15,7 @@
 #include "hm01b0_clk.h"
 #include "gpio.h"
 #include "hm01b0_capture.h"
+#include "hm01b0_spi.h"
 
 //#include <zephyr/drivers/video.h>
 //#include <zephyr/drivers/video/arducam_mega.h>
@@ -110,6 +111,7 @@ int main(void)
 	i2c_init();
 	hm01b0_init();
 	lvld_timer_init();
+	//spi_init();
 
 	ret = app_bt_init(&app_bt_callbacks);
 	if (ret < 0) {

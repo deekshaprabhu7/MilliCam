@@ -41,7 +41,7 @@ void timer_lvld_event_handler(nrf_timer_event_t event_type, void* p_context)
           #if (MEM_INIT == 1)
             memset(m_rx_buf, MEM_INIT_VALUE, total_image_size);
           #endif
-          #if (defined(CAMERA_DEBUG) && (CAMERA_DEBUG == 1)) 
+          #if (defined(CAMERA_DEBUG) && (CAMERA_DEBUG == 1))
               nrf_drv_gpiote_in_event_enable(FRAME_VLD, true);
               APP_ERROR_CHECK(nrf_drv_spis_buffers_set(&spis, m_tx_buf, m_length_tx, m_rx_buf, m_length_rx));
           #endif
@@ -59,10 +59,7 @@ void timer_lvld_event_handler(nrf_timer_event_t event_type, void* p_context)
 
     }
 
-
-    LOG_INF("LVLD Timer");
-    //gpio_pin_toggle(gpio1, CAM_SPI_CS_PIN);
-    //k_msleep(SLEEP_TIME_MS);
+   // LOG_INF("LVLD Timer");
 }
 
 void lvld_timer_init(void)

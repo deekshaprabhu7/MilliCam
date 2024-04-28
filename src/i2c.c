@@ -34,6 +34,8 @@ uint8_t hm_i2c_read(uint16_t reg_addr){
 		LOG_INF("Failed to write/read I2C address 0x%2x at Reg. 0x%04x", dev_i2c.addr, (addr[0] << 8) | addr[1]);
 	}
 	return data_out;
+
+	//DEEKSHA: ToDo: I2C reset Timer Implementation
 }
 
 

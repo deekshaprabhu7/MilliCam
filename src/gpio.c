@@ -1,5 +1,6 @@
 #include "gpio.h"
 #include <zephyr/logging/log.h>
+#include "hm01b0_spi.h"
 
 LOG_MODULE_REGISTER(gpio, CONFIG_LOG_DEFAULT_LEVEL);
 
@@ -10,10 +11,12 @@ int m_clk_gpio_err = 0;
 int frame_valid_gpio_err = 0;
 int line_valid_gpio_err = 0;
 int cam_spi_gpio_err = 0;
-int dummy_spi_gpio_err = 0;
+int cam_spi_cs_err = 0;
+int cam_spi_mosi_err = 0;
+int cam_spi_miso_err = 0;
+int cam_spi_sck_err = 0;
 
 uint32_t line_count;
-uint16_t m_length_rx_done = 0;
 uint8_t image_rd_done = 0;
 
 bool acc_rec_flag;
@@ -26,8 +29,11 @@ int gpio_init()
 	m_clk_gpio_err =  gpio_pin_configure(gpio0, MCLK_PIN, GPIO_OUTPUT | GPIO_OUTPUT_INIT_LOW);
     frame_valid_gpio_err = gpio_pin_configure(gpio0, FRAME_VALID_PIN, GPIO_OUTPUT | GPIO_OUTPUT_INIT_LOW);
     line_valid_gpio_err = gpio_pin_configure(gpio0, LINE_VALID_PIN, GPIO_OUTPUT | GPIO_OUTPUT_INIT_LOW);
-    cam_spi_gpio_err = gpio_pin_configure(gpio1, CAM_SPI_CS_PIN, GPIO_OUTPUT | GPIO_OUTPUT_INIT_LOW);
-    dummy_spi_gpio_err = gpio_pin_configure(gpio1, DUMMY_CS_PIN, GPIO_OUTPUT | GPIO_OUTPUT_INIT_LOW);
+    cam_spi_cs_err = gpio_pin_configure(gpio1, CAM_SPI_CS_PIN, GPIO_OUTPUT | GPIO_OUTPUT_INIT_LOW);
+    cam_spi_mosi_err = gpio_pin_configure(gpio1, CAM_SPI_MOSI_PIN, GPIO_OUTPUT | GPIO_OUTPUT_INIT_LOW);
+    cam_spi_miso_err = gpio_pin_configure(gpio1, CAM_SPI_MISO_PIN, GPIO_OUTPUT | GPIO_OUTPUT_INIT_LOW);
+    cam_spi_sck_err = gpio_pin_configure(gpio1, CAM_SPI_SCK_PIN, GPIO_OUTPUT | GPIO_OUTPUT_INIT_LOW);
+    cam_spi_gpio_err = gpio_pin_configure(gpio1, CAM_SPI_GPIO_CS_PIN, GPIO_OUTPUT | GPIO_OUTPUT_INIT_LOW);
 }
 
 static void in_pin_handler_frame_vld(nrfx_gpiote_pin_t pin, nrfx_gpiote_trigger_t trigger, void *p_context)
@@ -38,7 +44,7 @@ static void in_pin_handler_frame_vld(nrfx_gpiote_pin_t pin, nrfx_gpiote_trigger_
     line_count = 0;
     m_length_rx_done = 0;
     nrfx_timer_enable(&TIMER_LVLD);
-    gpio_pin_set(gpio1, CAM_SPI_CS_PIN, 0);
+    gpio_pin_set(gpio1, CAM_SPI_GPIO_CS_PIN, 0);
 }
 
 static void in_pin_handler_line_vld(nrfx_gpiote_pin_t pin, nrfx_gpiote_trigger_t trigger, void *p_context)
