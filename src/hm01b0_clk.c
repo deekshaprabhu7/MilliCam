@@ -12,6 +12,8 @@
 // Dummy Timer Handler
 static void timer_handler(nrf_timer_event_t event_type, void * p_context){}
 
+nrfx_timer_t CAM_TIMER = NRFX_TIMER_INSTANCE(TIMER_INST_IDX);
+
 int clk_init()
 {
 
@@ -63,7 +65,6 @@ int clk_init()
 
     nrfx_gpiote_out_task_enable(MCLK_PIN);
 
-    nrfx_timer_t CAM_TIMER = NRFX_TIMER_INSTANCE(TIMER_INST_IDX);
     uint32_t base_frequency = NRF_TIMER_BASE_FREQUENCY_GET(timer_inst.p_reg);
     nrfx_timer_config_t timer_config = NRFX_TIMER_DEFAULT_CONFIG(base_frequency);
     timer_config.bit_width = NRF_TIMER_BIT_WIDTH_32;

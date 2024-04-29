@@ -18,8 +18,16 @@ int cam_spi_sck_err = 0;
 
 uint32_t line_count;
 uint8_t image_rd_done = 0;
+uint8_t image_frame_done = 0;
+bool m_stream_mode_active = false;
+bool stream_first_image_done = false;
+bool acc_int_cmd_sweep;
+bool cmd_acc_init_flag = false;
+uint8_t single_capture_flag = 0;
+bool img_info_sent = false;
+uint16_t total_image_size = total_spi_buffer_size;
 
-bool acc_rec_flag;
+bool acc_rec_flag = false;
 
 int gpio_init()
 {

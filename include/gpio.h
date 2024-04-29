@@ -25,12 +25,22 @@
 #define CAM_SPI_MISO_PIN 14 //gpio1
 #define CAM_SPI_SCK_PIN 15 //gpio1
 
+#define BOARD_PCA10040 1 //DEEKSHA - Rewrite logic for this
 
 extern const struct device *gpio0;
 extern const struct device *gpio1;
 
 extern uint32_t line_count;
 extern uint8_t image_rd_done;
+extern uint8_t image_frame_done;
+extern bool m_stream_mode_active;
+extern bool stream_first_image_done;
+extern bool acc_int_cmd_sweep;
+extern bool cmd_acc_init_flag;
+extern uint8_t m_new_command_received;
+extern uint8_t single_capture_flag;
+extern bool img_info_sent;
+extern uint16_t total_image_size;
 
 extern bool acc_rec_flag;
 

@@ -1,6 +1,5 @@
 #include "hm01b0_spi.h"
 #include <zephyr/logging/log.h>
-#include <nrfx_spis.h>
 
 LOG_MODULE_REGISTER(SPIModule, CONFIG_LOG_DEFAULT_LEVEL);
 
@@ -32,6 +31,7 @@ int spi_init(){
 } */
 
 
+nrfx_spis_t spis_inst = NRFX_SPIS_INSTANCE(SPIS_INST_IDX);
 
 static void spis_handler(nrfx_spis_evt_t const * p_event, void * p_context)
 {
@@ -50,7 +50,7 @@ void spi_init(){
     (void)status;
     void * p_context = "Some context";
 
-    nrfx_spis_t spis_inst = NRFX_SPIS_INSTANCE(SPIS_INST_IDX);
+
     nrfx_spis_config_t spis_config = NRFX_SPIS_DEFAULT_CONFIG(CAM_SPI_SCK_PIN,
                                                               CAM_SPI_MOSI_PIN,
                                                               CAM_SPI_MISO_PIN,

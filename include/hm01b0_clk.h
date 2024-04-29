@@ -29,6 +29,7 @@
 /** @brief Symbol specifying time in milliseconds to wait for handler execution. */
 #define TIME_TO_WAIT_MS 100UL
 
+extern nrfx_timer_t CAM_TIMER;
 
 int clk_init();
 

@@ -13,7 +13,6 @@
 #define total_spi_buffer_size_max 32000
 #define total_spi_buffer_size 10000
 extern uint8_t LINE_NUM;
-extern uint16_t total_image_size;
 
 
 //Got from HM01B0_COMPRESS.h +++++++++++++++++++++++++++++++++++++++++

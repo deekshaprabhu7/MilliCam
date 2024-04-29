@@ -8,6 +8,7 @@
 #include "its.h"
 
 #include <zephyr/logging/log.h>
+#include "gpio.h"
 
 #define LOG_MODULE_NAME app_bluetooth
 LOG_MODULE_REGISTER(LOG_MODULE_NAME, LOG_LEVEL_INF);
@@ -27,7 +28,8 @@ static app_bt_change_resolution_cb app_callback_change_resolution;
 static struct its_ble_params_info_t ble_params_info = {.con_interval = 0, .mtu = 23, .tx_phy = 1, .rx_phy = 1};
 
 // In order to maximize data throughput, scale the notifications after the TX data length
-static int le_tx_data_length = 20;
+//static int le_tx_data_length = 20;
+int le_tx_data_length = 20; //DEEKSHA removed static to use in main
 
 enum app_bt_internal_commands {APP_BT_INT_ITS_RX_EVT, APP_BT_INT_SCHEDULE_CONNECTED_CB, APP_BT_INT_SCHEDULE_DISCONNECTED_CB, APP_BT_INT_SCHEDULE_BLE_PARAMS_INFO_UPDATE};
 static struct its_rx_cb_evt_t internal_command_evt;
@@ -202,7 +204,10 @@ static void app_bt_thread_func(void)
 			// Commands originating from the Image Transfer Service
 			switch (app_cmd.its_rx_event.command) {
 				case ITS_RX_CMD_SINGLE_CAPTURE:
-					LOG_DBG("ITS RX CMD: SingleCapture");
+					LOG_INF("ITS RX CMD: SingleCapture");
+					m_new_command_received = app_cmd.its_rx_event.command;
+					img_info_sent = false;
+					LOG_INF("m_new_command_received=%d", m_new_command_received);
 					if (app_callback_take_picture) {
 						app_callback_take_picture();
 					}

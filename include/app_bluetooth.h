@@ -25,4 +25,6 @@ int app_bt_send_picture_header(uint32_t pic_size);
 
 int app_bt_send_picture_data(uint8_t *buf, uint16_t len);
 
+extern int le_tx_data_length;
+
 #endif
