@@ -15,6 +15,7 @@ int cam_spi_cs_err = 0;
 int cam_spi_mosi_err = 0;
 int cam_spi_miso_err = 0;
 int cam_spi_sck_err = 0;
+int test_pin_err = 0;
 
 uint32_t line_count;
 uint8_t volatile image_rd_done = 0;
@@ -42,11 +43,12 @@ int gpio_init()
     cam_spi_miso_err = gpio_pin_configure(gpio1, CAM_SPI_MISO_PIN, GPIO_OUTPUT | GPIO_OUTPUT_INIT_LOW);
     cam_spi_sck_err = gpio_pin_configure(gpio1, CAM_SPI_SCK_PIN, GPIO_OUTPUT | GPIO_OUTPUT_INIT_LOW);
     cam_spi_gpio_err = gpio_pin_configure(gpio1, CAM_SPI_GPIO_CS_PIN, GPIO_OUTPUT | GPIO_OUTPUT_INIT_LOW);
+    test_pin_err = gpio_pin_configure(gpio0, TEST_PIN, GPIO_OUTPUT | GPIO_OUTPUT_INIT_LOW);
 }
 
 static void in_pin_handler_frame_vld(nrfx_gpiote_pin_t pin, nrfx_gpiote_trigger_t trigger, void *p_context)
 {
-    //nrf_gpiote_event_disable(FRAME_VALID_PIN); //DEEKSHA Check this
+    LOG_INF("Frame valid interrupt handler");
     nrfx_gpiote_trigger_disable(FRAME_VALID_PIN);
 
     line_count = 0;
@@ -57,7 +59,7 @@ static void in_pin_handler_frame_vld(nrfx_gpiote_pin_t pin, nrfx_gpiote_trigger_
 
 static void in_pin_handler_line_vld(nrfx_gpiote_pin_t pin, nrfx_gpiote_trigger_t trigger, void *p_context)
 {
-    //nrf_gpiote_event_disable(FRAME_VALID_PIN); //DEEKSHA Check this
+    LOG_INF("Line valid interrupt handler");
 
     if (line_count<LINE_NUM){
     // here we need to activate SPI CS; enable the lvld_timer; and activate the line_vld interrupt; increase the counter of lines
@@ -94,23 +96,22 @@ static void in_pin_handler_line_vld(nrfx_gpiote_pin_t pin, nrfx_gpiote_trigger_t
         #endif
         image_rd_done = 1;
     }
-    LOG_INF("test2");
 }
-
 
 void gpio_setting_init(void)
 {
     nrfx_err_t err_code;
-    uint8_t fvld_channel;
-/*
-#if defined(__ZEPHYR__)
-    IRQ_DIRECT_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_GPIOTE), IRQ_PRIO_LOWEST, nrfx_gpiote_irq_handler,
-                       0);
-#endif
+    static uint8_t fvld_channel;
+    static uint8_t lvld_channel;
 
-    err_code = nrfx_gpiote_init(NRFX_GPIOTE_DEFAULT_CONFIG_IRQ_PRIORITY); */
+    if (!nrfx_gpiote_is_init())
+    {
+        err_code = nrfx_gpiote_init(NRFX_GPIOTE_DEFAULT_CONFIG_IRQ_PRIORITY);
+    }
 
     err_code = nrfx_gpiote_channel_alloc(&fvld_channel);
+    NRFX_ASSERT(status == NRFX_SUCCESS);
+    err_code = nrfx_gpiote_channel_alloc(&lvld_channel);
     NRFX_ASSERT(status == NRFX_SUCCESS);
 
    static const nrfx_gpiote_input_config_t in_config_frmvld =
@@ -118,17 +119,17 @@ void gpio_setting_init(void)
         .pull = NRF_GPIO_PIN_NOPULL,
     };
 
-   /*Finds rising edge instead of just toggling*/
+   // Finds rising edge instead of just toggling
     static const nrfx_gpiote_trigger_config_t trigger_config_frmvalid = {
 		.trigger = NRFX_GPIOTE_TRIGGER_LOTOHI,
-       // .p_in_channel = &fvld_channel,
+        .p_in_channel = &fvld_channel,
 	};
 
 	static const nrfx_gpiote_handler_config_t handler_config_frmvalid = {
 		.handler = in_pin_handler_frame_vld,
 	};
 
-    /*gpiote initialization has been done in clock and timer initialization, no need to do it again*/
+    // gpiote initialization has been done in clock and timer initialization, no need to do it again
     err_code = nrfx_gpiote_input_configure(FRAME_VALID_PIN, &in_config_frmvld, &trigger_config_frmvalid, &handler_config_frmvalid);
     NRFX_ASSERT(status == NRFX_SUCCESS);
 
@@ -138,17 +139,17 @@ void gpio_setting_init(void)
         .pull = NRF_GPIO_PIN_NOPULL,
     };
 
-   /*Finds rising edge instead of just toggling*/
+  // Finds rising edge instead of just toggling
     static const nrfx_gpiote_trigger_config_t trigger_config_linevalid = {
 		.trigger = NRFX_GPIOTE_TRIGGER_HITOLO,
-       // .p_in_channel = &fvld_channel,
+        .p_in_channel = &lvld_channel,
 	};
 
 	static const nrfx_gpiote_handler_config_t handler_config_linevalid = {
 		.handler = in_pin_handler_line_vld,
 	};
 
-    /*gpiote initialization has been done in clock and timer initialization, no need to do it again*/
+    // gpiote initialization has been done in clock and timer initialization, no need to do it again
     err_code = nrfx_gpiote_input_configure(LINE_VALID_PIN, &in_config_linevld, &trigger_config_linevalid, &handler_config_linevalid);
     NRFX_ASSERT(status == NRFX_SUCCESS);
 

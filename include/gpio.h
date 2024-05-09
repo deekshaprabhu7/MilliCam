@@ -24,6 +24,7 @@
 #define CAM_SPI_MOSI_PIN 13 //gpio1
 #define CAM_SPI_MISO_PIN 14 //gpio1
 #define CAM_SPI_SCK_PIN 15 //gpio1
+#define TEST_PIN 4 //gpio0
 
 #define BOARD_PCA10040 1 //DEEKSHA - Rewrite logic for this
 
@@ -46,6 +47,5 @@ extern bool acc_rec_flag;
 
 int gpio_init();
 void gpio_setting_init(void);
-//static void in_pin_handler_frame_vld(nrfx_gpiote_pin_t pin, nrfx_gpiote_trigger_t trigger);
 
 #endif
