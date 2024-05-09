@@ -17,7 +17,7 @@ int cam_spi_miso_err = 0;
 int cam_spi_sck_err = 0;
 
 uint32_t line_count;
-uint8_t image_rd_done = 0;
+uint8_t volatile image_rd_done = 0;
 uint8_t image_frame_done = 0;
 bool m_stream_mode_active = false;
 bool stream_first_image_done = false;

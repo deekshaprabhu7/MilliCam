@@ -31,7 +31,7 @@ extern const struct device *gpio0;
 extern const struct device *gpio1;
 
 extern uint32_t line_count;
-extern uint8_t image_rd_done;
+extern volatile uint8_t image_rd_done;
 extern uint8_t image_frame_done;
 extern bool m_stream_mode_active;
 extern bool stream_first_image_done;
