@@ -52,7 +52,7 @@ void hm_single_capture_spi_832(void){
     #endif
 
     status = nrfx_spis_buffers_set(&spis_inst, m_tx_buf, m_length_tx, m_rx_buf, m_length_rx);
-
+    LOG_INF("SPI buffers set");
     /*Camera values initialized*/
     image_rd_done = 0;
     image_frame_done = 0;
@@ -76,8 +76,7 @@ void hm_single_capture_spi_832(void){
     nrf_gpio_pin_set(BLE_START_PIN);
     #endif
     hm_i2c_write( REG_MODE_SELECT, capture_mode);//If we use the 0x03 mode for single capture, the power of camera stays high after capturing one frame
-
-    // while (image_rd_done != 1); //DEEKSHA Enable this.currently getting stuck if this is enabled
+    while (image_rd_done != 1);
 
     // while (!spis_xfer_done); //DEEKSHA Enable this.currently getting stuck if this is enabled
 
