@@ -87,9 +87,11 @@ void lvld_timer_init(void)
      * Setting the timer channel NRF_TIMER_CC_CHANNEL4 in the extended compare mode to clear
      * the timer.
      */
-    nrfx_timer_extended_compare(&TIMER_LVLD, NRF_TIMER_CC_CHANNEL4, lvld_timer_val,
-                                NRF_TIMER_SHORT_COMPARE0_CLEAR_MASK, true);
+    nrfx_timer_extended_compare(&TIMER_LVLD, NRF_TIMER_CC_CHANNEL1, lvld_timer_val,
+                                NRF_TIMER_SHORT_COMPARE1_CLEAR_MASK, true);
 
     // nrfx_timer_enable(&TIMER_LVLD);
+
+    LOG_INF("LVLD Timer Initialized");
 
 }
