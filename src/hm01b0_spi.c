@@ -3,73 +3,98 @@
 
 LOG_MODULE_REGISTER(SPIModule, CONFIG_LOG_DEFAULT_LEVEL);
 
-uint8_t m_tx_buf[1] = {0} ;                           /**< TX buffer. */
-uint8_t m_rx_buf[total_spi_buffer_size_max+200];       /**< RX buffer. 200 added for the ACC and Mag data */
-uint16_t m_length_rx;        /**< Transfer length. */
+uint8_t m_tx_buf[1] = {0};                           /**< TX buffer. */
+uint8_t m_rx_buf[total_spi_buffer_size_max+200] = {0xAA};       /**< RX buffer. 200 added for the ACC and Mag data */
+uint16_t m_length_rx = spi_buffer_size;        /**< Transfer length. */
 uint16_t m_length_rx_done = 0;        /**< Transfer length. */
 uint8_t m_length_tx = 0;        /**< Transfer length. */
-bool spis_xfer_done;
-
-/*
-
-int spi_init(){
-
-    struct spi_dt_spec spispec = SPI_DT_SPEC_GET(DT_NODELABEL(hm01b0spi), SPIOP, 0);
-
-    int err;
-
-    err = spi_is_ready_dt(&spispec);
-        if (!err) {
-	        LOG_INF("Error: SPI device is not ready, err: %d", err);
-        }
-        else{
-            LOG_INF("SPI device is ready");
-        }
-
-    return 0;
-
-} */
+volatile bool spis_xfer_done;
 
 
-nrfx_spis_t spis_inst = NRFX_SPIS_INSTANCE(SPIS_INST_IDX);
+#define MY_SPI_SLAVE  DT_NODELABEL(my_spi_slave)
 
-static void spis_handler(nrfx_spis_evt_t const * p_event, void * p_context)
+// SPI slave functionality
+const struct device *spi_dev;
+const struct device *spi_slave_dev;
+static struct k_poll_signal spi_slave_done_sig = K_POLL_SIGNAL_INITIALIZER(spi_slave_done_sig);
+
+const struct spi_config spi_slave_cfg = {
+	.operation = SPI_WORD_SET(8) | SPI_TRANSFER_MSB | SPI_OP_MODE_SLAVE | SPI_CS_ACTIVE_HIGH,
+	.frequency = 8000000,
+	.slave = 0,
+};
+/*	.operation = SPI_WORD_SET(8) | SPI_TRANSFER_MSB |
+				 SPI_MODE_CPOL | SPI_MODE_CPHA | SPI_OP_MODE_SLAVE,*/
+
+ int spi_slave_write_msg(void)
 {
-    if (p_event->evt_type == NRFX_SPIS_XFER_DONE)
-    {
-        char * p_msg = p_context;
-        LOG_INF("SPIS finished. Context passed to the handler: >%s<", p_msg);
-        LOG_INF("SPIS rx buffer: %s", m_rx_buf);
+    const struct spi_buf s_tx_buf = {
+		.buf = m_tx_buf,
+		.len = m_length_tx,
+	};
+	const struct spi_buf_set s_tx = {
+		.buffers = &s_tx_buf,
+		.count = 1
+	};
+
+	// Adjust the receive buffer address for each call
+    uint8_t* adjusted_rx_buf = m_rx_buf + line_count * m_length_rx;
+
+	struct spi_buf s_rx_buf = {
+		.buf = adjusted_rx_buf,
+		.len = m_length_rx,
+	};
+	const struct spi_buf_set s_rx = {
+		.buffers = &s_rx_buf,
+		.count = 1
+	};
+    // Reset signal
+    k_poll_signal_reset(&spi_slave_done_sig);
+
+LOG_INF("Before inside spi_slave_write_msg function");
+	// Start transaction
+//LOG_INF("Value of rxbuffer: %i", m_rx_buf);
+
+	int error = spi_transceive_signal(spi_slave_dev, &spi_slave_cfg, &s_tx, &s_rx, &spi_slave_done_sig);
+	if(error != 0){
+		LOG_INF("SPI slave transceive error: %i", error);
+		return error;
+	}
+else {
+        LOG_INF("NO SPI slave transceive error: %i", error);
+        error = spi_slave_check_for_message();
+        if (error != 0) {
+            LOG_INF("SPI slave check for message error: %i", error);
+        }
     }
 }
 
 
-void spi_init(){
+void spi_init(void)
+{
+	spi_slave_dev = DEVICE_DT_GET(MY_SPI_SLAVE);
+	if(!device_is_ready(spi_slave_dev)) {
+		LOG_INF("SPI slave device not ready!");
+	}
+    else{
+        LOG_INF("SPI slave device is ready!");
+    }
+}
 
-    nrfx_err_t status;
-    (void)status;
-    void * p_context = "Some context";
 
 
-    nrfx_spis_config_t spis_config = NRFX_SPIS_DEFAULT_CONFIG(CAM_SPI_SCK_PIN,
-                                                              CAM_SPI_MOSI_PIN,
-                                                              CAM_SPI_MISO_PIN,
-                                                              CAM_SPI_CS_PIN);
-
-    status = nrfx_spis_init(&spis_inst, &spis_config, spis_handler, p_context);
-    NRFX_ASSERT(status == NRFX_SUCCESS);
-
-#if defined(__ZEPHYR__)
-    IRQ_DIRECT_CONNECT(NRFX_IRQ_NUMBER_GET(NRF_SPIS_INST_GET(SPIS_INST_IDX)), IRQ_PRIO_LOWEST,
-                       NRFX_SPIS_INST_HANDLER_GET(SPIS_INST_IDX), 0);
-#endif
-
-  //  status = nrfx_spis_buffers_set(&spis_inst,
-   //                                m_tx_buffer_slave, sizeof(m_tx_buffer_slave),
-     //                              m_rx_buffer_slave, sizeof(m_rx_buffer_slave));  //DEEKSHA: This is the default function
-
-    status = nrfx_spis_buffers_set(&spis_inst,
-                                   m_tx_buf, m_length_tx,
-                                   m_rx_buf, m_length_rx);
-    NRFX_ASSERT(status == NRFX_SUCCESS);
+int spi_slave_check_for_message(void)
+{
+	int signaled, result;
+	k_poll_signal_check(&spi_slave_done_sig, &signaled, &result);
+    LOG_INF("spi_slave_check_for_message: signaled=%d, result=%d", signaled, result);
+	if(signaled != 0){
+        spis_xfer_done = true;
+        LOG_INF("spis_xfer_done = TRUE!!!!!");
+		return 0;
+	}
+	else {
+        LOG_INF("SPI transfer not completed yet.");
+        return -1;
+    }
 }

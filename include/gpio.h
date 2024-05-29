@@ -7,6 +7,8 @@
 #include "hm01b0_lvld_timer.h"
 #include "hm01b0_capture.h"
 #include "hm01b0_ble_defines.h"
+#include "nrf.h"
+#include "hm01b0_spi.h"
 
 /* 1000 msec = 1 sec */
 #define SLEEP_TIME_MS   100 //LED Blink interval
@@ -21,10 +23,12 @@
 #define MCLK_PIN 26 //gpio0
 #define CAM_SPI_GPIO_CS_PIN 11 //gpio1
 #define CAM_SPI_CS_PIN 12 //gpio1
-#define CAM_SPI_MOSI_PIN 13 //gpio1
-#define CAM_SPI_MISO_PIN 14 //gpio1
+#define CAM_SPI_MOSI_PIN 14 //gpio1
+#define CAM_SPI_MISO_PIN 13 //gpio1
 #define CAM_SPI_SCK_PIN 15 //gpio1
 #define TEST_PIN 4 //gpio0
+
+#define CAM_SPI_PIN_MASK(pin) (1 << (pin))
 
 #define BOARD_PCA10040 1 //DEEKSHA - Rewrite logic for this
 

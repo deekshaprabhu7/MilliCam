@@ -7,10 +7,11 @@
 #define lvld_timer_pause  nrf_drv_timer_disable
 #define lvld_timer_run  nrf_drv_timer_enable
 
-//#define spi_buffer_size 33000
+//#define spi_buffer_size 100
 #define spi_buffer_size 100
 #define ROW_INIT 100
 #define total_spi_buffer_size_max 32000
+//#define total_spi_buffer_size_max 10000
 #define total_spi_buffer_size 10000
 extern uint8_t LINE_NUM;
 

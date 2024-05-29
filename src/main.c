@@ -119,7 +119,7 @@ int main(void)
 	i2c_init();
 	hm01b0_init();
 	lvld_timer_init();
-	spi_init();
+	//spi_init();
 
 	ret = app_bt_init(&app_bt_callbacks);
 	if (ret < 0) {
@@ -145,7 +145,9 @@ int main(void)
 						LOG_INF("Starting capture...");
 						if(jpeg_active == 0){
                             hm_peripheral_connected_init();
+                            LOG_INF("Out of hm_peripheral_connected_init");
                             hm_single_capture_spi_832(); //DEEKSHA: Uncomment while loops in this function late
+                            LOG_INF("Out of Single Capture");
 							single_capture_flag = 1;
 					}
 				/*	else {
@@ -221,6 +223,7 @@ int main(void)
                     //ble_its_img_info_send(&m_its, &image_info); //DEEKSHA delete this
                     app_bt_send_picture_header(m_length_rx_done);
                     img_info_sent = true;
+                    LOG_INF("BLE1");
                 }
 
                 #endif
@@ -229,7 +232,7 @@ int main(void)
                 nrf_gpio_pin_clear(BLE_START_PIN);
                 #endif
 
-                uint32_t ret_code;
+                nrfx_err_t ret_code;
                 do
                 {
                     if(img_data_length == 0)
@@ -240,11 +243,16 @@ int main(void)
 
                     //ret_code = ble_its_send_file_fragment(&m_its, m_rx_buf+ble_bytes_sent_counter , img_data_length); //DEEKSHA Delete later
                     ret_code = app_bt_send_picture_data(m_rx_buf+ble_bytes_sent_counter, img_data_length);
+
+                    //LOG_INF("m_rx_buf = %d", *m_rx_buf);
+
+                   // LOG_INF("BLE2");
                   /*  int app_bt_send_picture_data(uint8_t *buf, uint16_t len)
                     {
 	                    return bt_its_send_img_data(current_conn, buf, len, le_tx_data_length);
                     } */ //DEEKSHA Delete later
-                    if(ret_code == NRFX_SUCCESS)
+                   // if(ret_code == NRFX_SUCCESS)
+                    if(!ret_code)
                     {
                         ble_bytes_sent_counter = ble_bytes_sent_counter + img_data_length;
                         img_data_length = 0;
@@ -257,12 +265,19 @@ int main(void)
                             }
                         } */ //DEEKSHA: Enable later
                     }
-                }while(ret_code == NRFX_SUCCESS);
+                    else{
+                        //LOG_INF("BLE8");
+                    }
+                }while(!ret_code);
+              //  }while(ret_code == NRFX_SUCCESS);
 
+                // LOG_INF("BLE9");
               #if (FRAME_VLD_INT == 1)
-              if((ble_bytes_sent_counter >= m_length_rx_done) && m_stream_mode_active){ /*
+              if((ble_bytes_sent_counter >= m_length_rx_done) && m_stream_mode_active){
+                LOG_INF("BLE3");
+                 
                   img_info_sent = false;
-                  if(!acc_int_cmd_flag){
+                /*  if(!acc_int_cmd_flag){
                       APP_ERROR_CHECK(nrf_drv_spis_buffers_set(&spis, m_tx_buf, m_length_tx, m_rx_buf, m_length_rx));
                       nrf_drv_gpiote_in_event_enable(FRAME_VLD, true);
                   } 
@@ -344,10 +359,12 @@ int main(void)
                       }
                   } */  //DEEKSHA: Enable this section later
               } else if(!m_stream_mode_active && (ble_bytes_sent_counter < m_length_rx_done)){
+                   // LOG_INF("BLE4");
                   hm_i2c_write( REG_MODE_SELECT, 0x00);
               } else if(!m_stream_mode_active && (ble_bytes_sent_counter >= m_length_rx_done)){
+                LOG_INF("BLE5");
                   #if(CAM_CLK_GATING == 1)
-                   nrfx_timer_enable(&CAM_TIMER);
+                   nrfx_timer_disable(&CAM_TIMER);
                   #endif
 
                 //  hm_peripheral_uninit(); //DEEKSHA Enable later
@@ -363,6 +380,7 @@ int main(void)
         if(m_new_command_received == APP_CMD_NOCOMMAND)
         {
           // idle_state_handle(); //DEEKSHA: Check if this is needed
+         // LOG_INF("BLE6");
         }
 	}
 

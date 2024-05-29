@@ -3,6 +3,7 @@
 
 #include <nrfx_timer.h>
 #include "hm01b0_ble_defines.h"
+#include "hm01b0_spi.h"
 
 #define TIMER_INST_LVLD_IDX 1
 
