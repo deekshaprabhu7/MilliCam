@@ -251,8 +251,7 @@ int main(void)
                     {
 	                    return bt_its_send_img_data(current_conn, buf, len, le_tx_data_length);
                     } */ //DEEKSHA Delete later
-                   // if(ret_code == NRFX_SUCCESS)
-                    if(!ret_code)
+                    if(ret_code == NRFX_SUCCESS)
                     {
                         ble_bytes_sent_counter = ble_bytes_sent_counter + img_data_length;
                         img_data_length = 0;
@@ -265,11 +264,7 @@ int main(void)
                             }
                         } */ //DEEKSHA: Enable later
                     }
-                    else{
-                        //LOG_INF("BLE8");
-                    }
-                }while(!ret_code);
-              //  }while(ret_code == NRFX_SUCCESS);
+                }while(ret_code == NRFX_SUCCESS);
 
                 // LOG_INF("BLE9");
               #if (FRAME_VLD_INT == 1)

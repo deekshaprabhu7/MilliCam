@@ -148,7 +148,7 @@ int bt_its_send_img_data(struct bt_conn *conn, uint8_t *buf, uint16_t length, ui
 		LOG_ERR("BT notify error: %i", err);
 	}
 
-	return 0;
+	return NRFX_SUCCESS;
 }
 
 int bt_its_send_img_info(struct its_img_info_t * img_info)
@@ -161,10 +161,10 @@ int bt_its_send_img_info(struct its_img_info_t * img_info)
 
 	notify_buf[0] = ITS_IMG_INFO_DATA_TYPE_IMG_INFO;
 	memcpy(&notify_buf[1], img_info, sizeof(struct its_img_info_t));
-	
+
 	LOG_DBG("IMG info Notify TX %i bytes. Img size: %i", 1 + sizeof(struct its_img_info_t), img_info->file_size_bytes);
 
-	return bt_gatt_notify(NULL, &its_svc.attrs[7], 
+	return bt_gatt_notify(NULL, &its_svc.attrs[7],
 						  notify_buf, 1 + sizeof(struct its_img_info_t));
 }
 
@@ -176,16 +176,16 @@ int bt_its_send_ble_params_info(struct its_ble_params_info_t* ble_params_info)
 		// If notifications have not yet been enabled, schedule the params to be sent later
 		scheduled_params = *ble_params_info;
 		LOG_DBG("Scheduling params info for later");
-		
+
 		return 0;
 	}
 
 	notify_buf[0] = ITS_IMG_INFO_DATA_TYPE_BLE_PARAMS;
 	memcpy(&notify_buf[1], ble_params_info, sizeof(struct its_ble_params_info_t));
-	
+
 	LOG_DBG("BLE params Notify TX %i bytes",  1 + sizeof(struct its_ble_params_info_t));
-	
-	return bt_gatt_notify(NULL, &its_svc.attrs[7], 
+
+	return bt_gatt_notify(NULL, &its_svc.attrs[7],
 						  notify_buf, 1 + sizeof(struct its_ble_params_info_t));
 }
 
