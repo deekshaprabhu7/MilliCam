@@ -232,7 +232,7 @@ int main(void)
                 nrf_gpio_pin_clear(BLE_START_PIN);
                 #endif
 
-                nrfx_err_t ret_code;
+                int ret_code;
                 do
                 {
                     if(img_data_length == 0)
@@ -251,10 +251,19 @@ int main(void)
                     {
 	                    return bt_its_send_img_data(current_conn, buf, len, le_tx_data_length);
                     } */ //DEEKSHA Delete later
-                    if(ret_code == NRFX_SUCCESS)
+                    if(ret_code == 0)
                     {
-                        ble_bytes_sent_counter = ble_bytes_sent_counter + img_data_length;
+                        ble_bytes_sent_counter += img_data_length;
                         img_data_length = 0;
+
+                        if (ble_bytes_sent_counter >= m_length_rx_done)
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            //DEEKSHA ToDo: Logic to be added to handle this condition. Check what happens in streaming as well
+                        }
                       /* if(acc_rec_flag == true){
                             packet_sent_acc++;
                             //Read the Acc and Mag data and save it at the end of the image
@@ -264,7 +273,7 @@ int main(void)
                             }
                         } */ //DEEKSHA: Enable later
                     }
-                }while(ret_code == NRFX_SUCCESS);
+                }while(1);
 
                 // LOG_INF("BLE9");
               #if (FRAME_VLD_INT == 1)
