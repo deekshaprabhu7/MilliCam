@@ -57,6 +57,17 @@ uint8_t m_new_command_received = 0;
 uint8_t jpeg_active = 0;
 uint32_t img_data_length = 0;
 
+/*
+uint8_t m_new_acc = 0;
+bool acc_int_flag = false;
+uint8_t acc_pic_num = 0;
+bool acc_int_cmd_flag = false;//flag for for accelerometer is giving interrupt or not
+bool acc_int_cmd_sweep = false;//flag for if the sweeping is active for accelerometer or not
+bool acc_rec_flag = false;//flag for checking if we want to record ACC data or not
+bool cmd_acc_init_flag = false;//flag to show if the camera is already initialized or not
+uint16_t packet_sent_acc = 0; */
+
+
 enum {APP_CMD_NOCOMMAND = 0, APP_CMD_SINGLE_CAPTURE, APP_CMD_START_STREAM, APP_CMD_STOP_STREAM, 
       APP_CMD_CHANGE_RESOLUTION, APP_CMD_CHANGE_PHY, APP_CMD_SEND_BLE_PARAMS, APP_CMD_CHANGE_ANGLE, 
       APP_CMD_JPEG, APP_CMD_ACC, APP_CMD_WR_REG, APP_CMD_SWEEP_CAM, APP_CMD_CAM_ACC_REC};
@@ -69,7 +80,7 @@ enum {APP_CMD_NOCOMMAND = 0, APP_CMD_SINGLE_CAPTURE, APP_CMD_START_STREAM, APP_C
 #define COMMAND_MAX_SIZE 6
 
 void app_bt_connected_callback(void)
-{	
+{
 	LOG_INF("Bluetooth connection established. Entering BLE app mode");
 
 }
@@ -77,7 +88,7 @@ void app_bt_connected_callback(void)
 void app_bt_disconnected_callback(void)
 {
 	LOG_INF("Bluetooth disconnected. Entering UDP app mode");
-	
+
 }
 
 void app_bt_take_picture_callback(void)
@@ -107,7 +118,6 @@ const struct app_bt_cb app_bt_callbacks = {
 };
 
 
-
 int main(void)
 {
 
@@ -130,39 +140,57 @@ int main(void)
 	#if (JPEG_COMPRESS == 0)
 	for(;;)
 	{
+        LOG_INF("Entering for");
 		k_msleep(SLEEP_TIME_MS);
 		if(m_new_command_received != APP_CMD_NOCOMMAND)
 		{
-			LOG_INF("Entering if");
 			uint32_t new_command = m_new_command_received;
 			LOG_INF("new_command=%d", new_command);
             m_new_command_received = APP_CMD_NOCOMMAND;
 			switch(new_command)
 			{
 				case APP_CMD_SINGLE_CAPTURE:
-					LOG_INF("Entering switch single capture");
 					if(ble_bytes_sent_counter >= m_length_rx_done){
 						LOG_INF("Starting capture...");
 						if(jpeg_active == 0){
                             hm_peripheral_connected_init();
-                            LOG_INF("Out of hm_peripheral_connected_init");
                             hm_single_capture_spi_832(); //DEEKSHA: Uncomment while loops in this function late
-                            LOG_INF("Out of Single Capture");
+                            LOG_INF("Capture complete: size %i bytes", (uint32_t)(m_length_rx_done));
 							single_capture_flag = 1;
 					}
 				/*	else {
 						LOG_INF("Starting capture...");
 
                             hm_single_capture_spi_832_compressed();
-                            NRF_LOG_INFO("Capture complete: size %i bytes", (uint32_t)(compressed_size));
+                            LOG_INF("Capture complete: size %i bytes", (uint32_t)(compressed_size));
                             #if (RELEASE_CODE ==0)
-                            printf("Capture complete: size %i bytes\n", (uint32_t)(compressed_size));
+                            LOG_INF("Capture complete: size %i bytes", (uint32_t)(compressed_size));
                             #endif
 
                             single_capture_flag = 1;
 					} */  //DEEKSHA: Enable this later
 				}
 					break;
+
+                case APP_CMD_START_STREAM:
+                    LOG_INF("Stream mode enabled");
+
+                    #if (RELEASE_CODE ==0)
+                        LOG_INF("Stream mode enabled");
+                    #endif
+                    break;
+
+                case APP_CMD_STOP_STREAM:
+                    LOG_INF("Stream mode disabled");
+                    #if (RELEASE_CODE ==0)
+                        LOG_INF("Stream mode disabled");
+                    #endif
+                    break;
+
+                case APP_CMD_SEND_BLE_PARAMS:
+                    app_bt_send_picture_header(m_length_rx_done);
+                    break;
+
 				default:
 					break;
 			}
@@ -170,7 +198,7 @@ int main(void)
 
 		if(m_stream_mode_active)
         {
-			LOG_INF("Enetering m_stream_mode_active");
+			LOG_INF("Entering m_stream_mode_active");
             #if (FRAME_VLD_INT == 1)
             if(!stream_first_image_done){
                 if(!acc_int_cmd_sweep){
@@ -211,14 +239,14 @@ int main(void)
             #endif
         }
 
-		if(ble_bytes_sent_counter< m_length_rx_done )
+		if(ble_bytes_sent_counter < m_length_rx_done )
         {
                 #if (FRAME_VLD_INT == 1)
                 if(!img_info_sent){
                     // ble_its_img_info_t image_info; //DEEKSHA Check if this is required
                     if(acc_rec_flag == true){
                         m_length_rx_done = m_length_rx_done + m_length_rx;
-                    } 
+                    }
                     //image_info.file_size_bytes = m_length_rx_done; //DEEKSHA delete this
                     //ble_its_img_info_send(&m_its, &image_info); //DEEKSHA delete this
                     app_bt_send_picture_header(m_length_rx_done);
@@ -275,23 +303,29 @@ int main(void)
                     }
                 }while(1);
 
-                // LOG_INF("BLE9");
+                LOG_INF("BLE9");
               #if (FRAME_VLD_INT == 1)
               if((ble_bytes_sent_counter >= m_length_rx_done) && m_stream_mode_active){
                 LOG_INF("BLE3");
-                 
+
                   img_info_sent = false;
-                /*  if(!acc_int_cmd_flag){
-                      APP_ERROR_CHECK(nrf_drv_spis_buffers_set(&spis, m_tx_buf, m_length_tx, m_rx_buf, m_length_rx));
-                      nrf_drv_gpiote_in_event_enable(FRAME_VLD, true);
+                  if(!acc_int_cmd_flag){
+                    //APP_ERROR_CHECK(nrf_drv_spis_buffers_set(&spis, m_tx_buf, m_length_tx, m_rx_buf, m_length_rx));
+                          int error = spi_slave_write_msg();
+	                        if(error != 0){
+		                        printk("SPI slave transceive error: %i\n", error);
+		                        //return error;
+	                            }
+
+                      nrfx_gpiote_trigger_enable(FRAME_VALID_PIN, true);
                   } 
                   else 
-                  {
+                  { /*
                       memset(m_rx_buf+total_image_size, 0, m_length_rx);
                       acc_rec_counter = 0;
                       if(!acc_int_cmd_sweep){
                           if(acc_pic_num > 0){
-                              APP_ERROR_CHECK(nrf_drv_spis_buffers_set(&spis, m_tx_buf, m_length_tx, m_rx_buf, m_length_rx));
+                             // APP_ERROR_CHECK(nrf_drv_spis_buffers_set(&spis, m_tx_buf, m_length_tx, m_rx_buf, m_length_rx));
                               if(acc_rec_flag == true){
                                   acc_rec_counter = 0;
                                   packet_sent_acc = 0;
@@ -361,8 +395,8 @@ int main(void)
                               nrf_gpio_pin_clear(BOOST_PIN);
                           }
                       }
-                  } */  //DEEKSHA: Enable this section later
-              } else if(!m_stream_mode_active && (ble_bytes_sent_counter < m_length_rx_done)){
+                */  }   //DEEKSHA: Enable this section later 
+             } else if(!m_stream_mode_active && (ble_bytes_sent_counter < m_length_rx_done)){
                    // LOG_INF("BLE4");
                   hm_i2c_write( REG_MODE_SELECT, 0x00);
               } else if(!m_stream_mode_active && (ble_bytes_sent_counter >= m_length_rx_done)){
@@ -379,12 +413,12 @@ int main(void)
                   #endif
               }
               #endif
-            }
+        }
 
         if(m_new_command_received == APP_CMD_NOCOMMAND)
         {
           // idle_state_handle(); //DEEKSHA: Check if this is needed
-         // LOG_INF("BLE6");
+          LOG_INF("BLE6");
         }
 	}
 

@@ -48,6 +48,7 @@ extern bool img_info_sent;
 extern uint16_t total_image_size;
 
 extern bool acc_rec_flag;
+extern bool acc_int_cmd_flag;
 
 int gpio_init();
 void gpio_setting_init(void);

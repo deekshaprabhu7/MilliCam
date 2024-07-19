@@ -143,14 +143,14 @@ static void connection_param_update(struct bt_conn *conn, uint16_t interval, uin
 static void le_data_length_updated(struct bt_conn *conn,
 				   struct bt_conn_le_data_len_info *info)
 {
-	LOG_INF("LE data length updated: TX (len: %d time: %d) RX (len: %d time: %d)", 
+	LOG_INF("LE data length updated: TX (len: %d time: %d) RX (len: %d time: %d)",
 			info->tx_max_len, info->tx_max_time, info->rx_max_len, info->rx_max_time);
 
 	ble_params_info.mtu = info->tx_max_len;
 	schedule_ble_params_info_update();
 
-	// Set the TX data length, which will determine the size of image data transfers. 
-	// Subtract 3 bytes for ATT header and 4 bytes for L2CAP header. 
+	// Set the TX data length, which will determine the size of image data transfers.
+	// Subtract 3 bytes for ATT header and 4 bytes for L2CAP header.
 	le_tx_data_length = info->tx_max_len - 7;
 	LOG_INF("Notification data length set to %i bytes", le_tx_data_length);
 }
@@ -207,6 +207,7 @@ static void app_bt_thread_func(void)
 					LOG_INF("ITS RX CMD: SingleCapture");
 					m_new_command_received = app_cmd.its_rx_event.command;
 					img_info_sent = false;
+					acc_rec_flag = false;
 					LOG_INF("m_new_command_received=%d", m_new_command_received);
 					if (app_callback_take_picture) {
 						app_callback_take_picture();
@@ -214,12 +215,33 @@ static void app_bt_thread_func(void)
 					break;
 				case ITS_RX_CMD_START_STREAM:
 					LOG_DBG("ITS RX CMD: Start Stream");
+					m_new_command_received = app_cmd.its_rx_event.command;
+					#if(CAM_CLK_GATING == 1)
+            			nrfx_timer_enable(&CAM_TIMER);
+            		#endif
+            		single_capture_flag = 0;
+            		m_stream_mode_active = true;
+            		img_info_sent = false;
+            		acc_rec_flag = false;
+            		cmd_acc_init_flag = false;
 					if (app_callback_enable_stream) {
 						app_callback_enable_stream(true);
 					}
 					break;
 				case ITS_RX_CMD_STOP_STREAM:
 					LOG_DBG("ITS RX CMD: Stop stream");
+					m_new_command_received = app_cmd.its_rx_event.command;
+					//pwm_boost_zero(); //DEEKSHA - Uncomment these 3 lines later
+					//hm_i2c_write_8b(CNTL1,0x08, SLAV_ADDR_MAG);
+					//hm_i2c_write_8b(MODE, 0x00, SLAV_ADDR_ACC);
+					cmd_acc_init_flag = false;
+					acc_int_cmd_flag = false;
+					acc_int_cmd_sweep = false;
+					acc_rec_flag = false;
+					// nrf_drv_gpiote_in_event_disable(ACC_INT_PIN); //DEEKSHA - Uncomment this later
+					img_info_sent = false;
+					stream_first_image_done = false;
+					m_stream_mode_active = false;
 					if (app_callback_enable_stream) {
 						app_callback_enable_stream(false);
 					}
@@ -239,6 +261,7 @@ static void app_bt_thread_func(void)
 					break;
 				case ITS_RX_CMD_SEND_BLE_PARAMS:
 					LOG_DBG("ITS RX CMD: Send ble params");
+					m_new_command_received = app_cmd.its_rx_event.command;
 					break;
 
 				default:
@@ -258,7 +281,7 @@ static void app_bt_thread_func(void)
 					}
 					break;
 				case APP_BT_INT_SCHEDULE_BLE_PARAMS_INFO_UPDATE:
-					err = bt_its_send_ble_params_info(&ble_params_info);	
+					err = bt_its_send_ble_params_info(&ble_params_info);
 					if (err) {
 						LOG_ERR("Error sending ble params");
 					}
@@ -321,5 +344,5 @@ int app_bt_send_picture_data(uint8_t *buf, uint16_t len)
 	return bt_its_send_img_data(current_conn, buf, len, le_tx_data_length);
 }
 
-K_THREAD_DEFINE(app_bt_thread, 2048, app_bt_thread_func, NULL, NULL, NULL, 
+K_THREAD_DEFINE(app_bt_thread, 2048, app_bt_thread_func, NULL, NULL, NULL,
 				K_PRIO_PREEMPT(K_LOWEST_APPLICATION_THREAD_PRIO), 0, 0);

@@ -51,17 +51,15 @@ const struct spi_config spi_slave_cfg = {
     // Reset signal
     k_poll_signal_reset(&spi_slave_done_sig);
 
-LOG_INF("Before inside spi_slave_write_msg function");
 	// Start transaction
-//LOG_INF("Value of rxbuffer: %i", m_rx_buf);
 
 	int error = spi_transceive_signal(spi_slave_dev, &spi_slave_cfg, &s_tx, &s_rx, &spi_slave_done_sig);
 	if(error != 0){
-		LOG_INF("SPI slave transceive error: %i", error);
+		//LOG_ERR("SPI slave transceive error: %i", error);
 		return error;
 	}
 else {
-        LOG_INF("NO SPI slave transceive error: %i", error);
+        //LOG_ERR("NO SPI slave transceive error: %i", error);
         error = spi_slave_check_for_message();
         if (error != 0) {
             LOG_INF("SPI slave check for message error: %i", error);
@@ -87,14 +85,14 @@ int spi_slave_check_for_message(void)
 {
 	int signaled, result;
 	k_poll_signal_check(&spi_slave_done_sig, &signaled, &result);
-    LOG_INF("spi_slave_check_for_message: signaled=%d, result=%d", signaled, result);
+    //LOG_INF("spi_slave_check_for_message: signaled=%d, result=%d", signaled, result);
 	if(signaled != 0){
         spis_xfer_done = true;
         LOG_INF("spis_xfer_done = TRUE!!!!!");
 		return 0;
 	}
 	else {
-        LOG_INF("SPI transfer not completed yet.");
+        //LOG_INF("SPI transfer not completed yet."); //DEEKSHA Uncomment later
         return -1;
     }
 }

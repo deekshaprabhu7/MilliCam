@@ -30,6 +30,7 @@ bool img_info_sent = false;
 uint16_t total_image_size = total_spi_buffer_size;
 
 bool acc_rec_flag = false;
+bool acc_int_cmd_flag = false;
 
 void configure_gpio_high_drive(void) {
     // Configure SPI pins with high drive strength using Nordic SDK
