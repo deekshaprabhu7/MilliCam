@@ -12,10 +12,6 @@ int m_clk_gpio_err = 0;
 int frame_valid_gpio_err = 0;
 int line_valid_gpio_err = 0;
 int cam_spi_gpio_err = 0;
-int cam_spi_cs_err = 0;
-int cam_spi_mosi_err = 0;
-int cam_spi_miso_err = 0;
-int cam_spi_sck_err = 0;
 int test_pin_err = 0;
 
 uint32_t line_count;
@@ -32,41 +28,7 @@ uint16_t total_image_size = total_spi_buffer_size;
 bool acc_rec_flag = false;
 bool acc_int_cmd_flag = false;
 
-void configure_gpio_high_drive(void) {
-    // Configure SPI pins with high drive strength using Nordic SDK
-    nrf_gpio_cfg(
-        CAM_SPI_SCK_PIN,
-        NRF_GPIO_PIN_DIR_INPUT,
-        NRF_GPIO_PIN_INPUT_CONNECT,
-        NRF_GPIO_PIN_PULLUP,
-        NRF_GPIO_PIN_H0H1,
-        NRF_GPIO_PIN_NOSENSE
-    );
-    nrf_gpio_cfg(
-        CAM_SPI_MOSI_PIN,
-        NRF_GPIO_PIN_DIR_INPUT,
-        NRF_GPIO_PIN_INPUT_CONNECT,
-        NRF_GPIO_PIN_PULLUP,
-        NRF_GPIO_PIN_H0H1,
-        NRF_GPIO_PIN_NOSENSE
-    );
-    nrf_gpio_cfg(
-        CAM_SPI_MISO_PIN,
-        NRF_GPIO_PIN_DIR_INPUT,
-        NRF_GPIO_PIN_INPUT_DISCONNECT,
-        NRF_GPIO_PIN_PULLUP,
-        NRF_GPIO_PIN_H0H1,
-        NRF_GPIO_PIN_NOSENSE
-    );
-    nrf_gpio_cfg(
-        CAM_SPI_CS_PIN,
-        NRF_GPIO_PIN_DIR_INPUT,
-        NRF_GPIO_PIN_INPUT_CONNECT,
-        NRF_GPIO_PIN_PULLUP,
-        NRF_GPIO_PIN_H0H1,
-        NRF_GPIO_PIN_NOSENSE
-    );
-}
+
 
 int gpio_init()
 {
@@ -76,16 +38,13 @@ int gpio_init()
 	m_clk_gpio_err =  gpio_pin_configure(gpio0, MCLK_PIN, GPIO_OUTPUT | GPIO_OUTPUT_INIT_LOW);
     frame_valid_gpio_err = gpio_pin_configure(gpio0, FRAME_VALID_PIN, GPIO_OUTPUT | GPIO_OUTPUT_INIT_LOW);
     line_valid_gpio_err = gpio_pin_configure(gpio0, LINE_VALID_PIN, GPIO_OUTPUT | GPIO_OUTPUT_INIT_LOW);
-    //cam_spi_cs_err = gpio_pin_configure(gpio1, CAM_SPI_CS_PIN, GPIO_INPUT);
-    //cam_spi_mosi_err = gpio_pin_configure(gpio1, CAM_SPI_MOSI_PIN, GPIO_INPUT);
-    //cam_spi_miso_err = gpio_pin_configure(gpio1, CAM_SPI_MISO_PIN, GPIO_INPUT);
-    //cam_spi_sck_err = gpio_pin_configure(gpio1, CAM_SPI_SCK_PIN, GPIO_INPUT);
     cam_spi_gpio_err = gpio_pin_configure(gpio1, CAM_SPI_GPIO_CS_PIN, GPIO_OUTPUT | GPIO_OUTPUT_INIT_LOW);
     test_pin_err = gpio_pin_configure(gpio0, TEST_PIN, GPIO_OUTPUT | GPIO_OUTPUT_INIT_LOW);
 
-    //configure_gpio_high_drive();
-
-    LOG_INF("GPIOs Initialized");
+    if (m_clk_gpio_err || frame_valid_gpio_err || line_valid_gpio_err || cam_spi_gpio_err || test_pin_err)
+        LOG_ERR("GPIO Initialization Error");
+    else
+        LOG_INF("GPIOs Initialized");
 }
 
 static void in_pin_handler_frame_vld(nrfx_gpiote_pin_t pin, nrfx_gpiote_trigger_t trigger, void *p_context)
@@ -104,10 +63,7 @@ static void in_pin_handler_line_vld(nrfx_gpiote_pin_t pin, nrfx_gpiote_trigger_t
     // here we need to activate SPI CS; enable the lvld_timer; and activate the line_vld interrupt; increase the counter of lines
         nrfx_timer_enable(&TIMER_LVLD);
        // gpio_pin_set(gpio1, CAM_SPI_GPIO_CS_PIN, 0);
-        NRF_P1->OUTCLR = (1 << 11);
-        //NRFX_DELAY_US(5000);
-        //z_impl_gpio_port_clear_bits_raw(gpio1, CAM_SPI_PIN_MASK(CAM_SPI_GPIO_CS_PIN));
-        //gpio_p_reg->OUTCLR = CAM_SPI_PIN_MASK; //DEEKSHA enable this
+        NRF_P1->OUTCLR = (1 << CAM_SPI_GPIO_CS_PIN);
         line_count++;
         }
     else{
@@ -115,21 +71,10 @@ static void in_pin_handler_line_vld(nrfx_gpiote_pin_t pin, nrfx_gpiote_trigger_t
         nrfx_gpiote_trigger_disable(FRAME_VALID_PIN);
         nrfx_timer_disable(&TIMER_LVLD);
         //gpio_pin_set(gpio1, CAM_SPI_GPIO_CS_PIN, 1);
-        NRF_P1->OUTSET = (1 << 11);
-        //NRFX_DELAY_US(1000);
-        //z_impl_gpio_port_set_bits_raw(gpio1, CAM_SPI_PIN_MASK(CAM_SPI_GPIO_CS_PIN));
-        //gpio_p_reg->OUTSET = CAM_SPI_PIN_MASK; //DEEKSHA enable this
+        NRF_P1->OUTSET = (1 << CAM_SPI_GPIO_CS_PIN);
 
-        //Deeksha: Enable these #define
         #if (FRAME_VLD_INT == 1)
-
-          #if defined(BOARD_PCA10056)
-          m_length_rx_done = m_length_rx;
-          #endif
-
-          #if defined(BOARD_PCA10040)
           m_length_rx_done = total_image_size;
-          #endif
           ble_bytes_sent_counter = 0;
 
         /*SPI registers initilization*/
@@ -180,8 +125,6 @@ void gpio_setting_init(void)
     err_code = nrfx_gpiote_input_configure(FRAME_VALID_PIN, &in_config_frmvld, &trigger_config_frmvalid, &handler_config_frmvalid);
     NRFX_ASSERT(status == NRFX_SUCCESS);
 
-    //nrfx_gpiote_trigger_enable(FRAME_VALID_PIN, true);
-
     static const nrfx_gpiote_input_config_t in_config_linevld = {
         .pull = NRF_GPIO_PIN_NOPULL,
     };
@@ -199,8 +142,6 @@ void gpio_setting_init(void)
     // gpiote initialization has been done in clock and timer initialization, no need to do it again
     err_code = nrfx_gpiote_input_configure(LINE_VALID_PIN, &in_config_linevld, &trigger_config_linevalid, &handler_config_linevalid);
     NRFX_ASSERT(status == NRFX_SUCCESS);
-
-    //nrfx_gpiote_trigger_enable(LINE_VALID_PIN, true);
 
     LOG_INF("nrfx_gpiote initialized");
 

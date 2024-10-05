@@ -128,7 +128,7 @@ int bt_its_init(struct bt_its_cb *callbacks)
 
 int bt_its_send_img_data(struct bt_conn *conn, uint8_t *buf, uint16_t length, uint16_t le_max_length)
 {
-	int err; //DEEKSHA: Commented to handle do-while loop in main function better
+	int err;
 	//nrfx_err_t err;
 	uint8_t *current_buf = buf;
 

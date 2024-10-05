@@ -9,7 +9,7 @@ const struct i2c_dt_spec dev_i2c = I2C_DT_SPEC_GET(I2C1_NODE);
 int i2c_init()
 {
     if (!device_is_ready(dev_i2c.bus)) {
-		LOG_INF("I2C bus %s is not ready!",dev_i2c.bus->name);
+		LOG_ERR("I2C bus %s is not ready!",dev_i2c.bus->name);
 	    return -1;
 	}
 	else{
@@ -31,7 +31,7 @@ uint8_t hm_i2c_read(uint16_t reg_addr){
 	ret = i2c_write_read_dt(&dev_i2c, addr, sizeof(addr), &data_out, sizeof(data_out));
 
 	if (ret != 0 ){
-		LOG_INF("Failed to write/read I2C address 0x%2x at Reg. 0x%04x", dev_i2c.addr, (addr[0] << 8) | addr[1]);
+		LOG_ERR("Failed to write/read I2C address 0x%2x at Reg. 0x%04x", dev_i2c.addr, (addr[0] << 8) | addr[1]);
 	}
 	return data_out;
 
@@ -52,7 +52,7 @@ int hm_i2c_write(uint16_t reg_addr, uint8_t data) {
     // Write the buffer to the I2C device
     ret = i2c_write_dt(&dev_i2c, addr, sizeof(addr));
 	if(ret != 0){
-		LOG_INF("Failed to write to I2C address 0x%2x at Reg. 0x%04x", dev_i2c.addr, (addr[0] << 8) | addr[1]);
+		LOG_ERR("Failed to write to I2C address 0x%2x at Reg. 0x%04x", dev_i2c.addr, (addr[0] << 8) | addr[1]);
 	}
 	return ret;
 }

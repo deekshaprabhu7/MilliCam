@@ -11,28 +11,13 @@ nrfx_timer_t TIMER_LVLD = NRFX_TIMER_INSTANCE(TIMER_INST_LVLD_IDX);
 void timer_lvld_event_handler(nrf_timer_event_t event_type, void* p_context)
 {
   nrfx_err_t status;
-    // DEEKSHA: ToDo: This is getting executed approx every 4.2 mins (visual verif using led toggling). Is this correct? (The same old lvld_timer_val value is copied here)
-    // Check the behaviour in SES with NRF52.
-
-        if (line_count<LINE_NUM){
+      if (line_count<LINE_NUM){
         // here we need to activate SPI CS; enable the lvld_timer; and activate the line_vld interrupt; increase the counter of lines
         nrfx_timer_disable(&TIMER_LVLD);
-        //gpio_pin_set(gpio1, CAM_SPI_GPIO_CS_PIN, 1);
-        //z_impl_gpio_port_set_bits_raw(gpio1, CAM_SPI_PIN_MASK(CAM_SPI_GPIO_CS_PIN));
-       //  gpio_p_reg->OUTSET = CAM_SPI_PIN_MASK; //DEEKSHA enable this
-        // nrfx_spis_buffers_set_back(&spis, m_tx_buf, m_length_tx, m_rx_buf + line_count*m_length_rx, m_length_rx); DEEKSHA: Enable after adding/ configuring SPI
-      NRF_P1->OUTSET = (1 << 11);
-    /*  status = nrfx_spis_buffers_set(&spis_inst, m_tx_buf, m_length_tx, m_rx_buf + line_count*m_length_rx, m_length_rx);
-        //gpio_pin_set(gpio1, CAM_SPI_GPIO_CS_PIN, 1);
-        NRFX_ASSERT(status == NRFX_SUCCESS);
-        if (status != NRFX_SUCCESS) {
-          LOG_ERR("nrfx_spis_buffer failed: 0x%02X", status);
-          return;
-    }*/
+        NRF_P1->OUTSET = (1 << CAM_SPI_GPIO_CS_PIN);
         int error = spi_slave_write_msg();
 	      if(error != 0){
-		      printk("SPI slave transceive error: %i\n", error);
-		    //return error;
+		      // LOG_ERR("SPI slave transceive error: %i\n", error); //DEEKSHA: Uncomment after SPI bug fix
 	  }
 
        // LOG_INF("m_rx_buf = %d", *m_rx_buf);
@@ -43,19 +28,10 @@ void timer_lvld_event_handler(nrf_timer_event_t event_type, void* p_context)
         nrfx_gpiote_trigger_disable(FRAME_VALID_PIN);
         nrfx_timer_disable(&TIMER_LVLD);
         //gpio_pin_set(gpio1, CAM_SPI_GPIO_CS_PIN, 1);
-        NRF_P1->OUTSET = (1 << 11);
-       // z_impl_gpio_port_set_bits_raw(gpio1, CAM_SPI_PIN_MASK(CAM_SPI_GPIO_CS_PIN));
-        //gpio_p_reg->OUTSET = CAM_SPI_PIN_MASK;  //DEEKSHA enable this
+        NRF_P1->OUTSET = (1 << CAM_SPI_GPIO_CS_PIN);
 
         #if (FRAME_VLD_INT == 1)
-
-          #if defined(BOARD_PCA10056)
-          m_length_rx_done = m_length_rx;
-          #endif
-
-          #if defined(BOARD_PCA10040)
           m_length_rx_done = total_image_size;
-          #endif
           ble_bytes_sent_counter = 0;
 
         /*SPI registers initilization*/

@@ -30,11 +30,6 @@ int clk_init()
                        0);
 #endif
 
-    //NRFX_EXAMPLE_LOG_INIT();
-
-    //NRFX_LOG_INFO("Starting nrfx_gppi basic one-to-one example.");
-    //NRFX_EXAMPLE_LOG_PROCESS();
-
     status = nrfx_gpiote_init(NRFX_GPIOTE_DEFAULT_CONFIG_IRQ_PRIORITY);
     NRFX_ASSERT(status == NRFX_SUCCESS);
     //NRFX_LOG_INFO("GPIOTE status: %s", nrfx_gpiote_is_init() ? "initialized" : "not initialized");

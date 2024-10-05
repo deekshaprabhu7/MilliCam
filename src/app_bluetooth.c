@@ -214,7 +214,7 @@ static void app_bt_thread_func(void)
 					}
 					break;
 				case ITS_RX_CMD_START_STREAM:
-					LOG_DBG("ITS RX CMD: Start Stream");
+					LOG_INF("ITS RX CMD: Start Stream");
 					m_new_command_received = app_cmd.its_rx_event.command;
 					#if(CAM_CLK_GATING == 1)
             			nrfx_timer_enable(&CAM_TIMER);
@@ -229,7 +229,7 @@ static void app_bt_thread_func(void)
 					}
 					break;
 				case ITS_RX_CMD_STOP_STREAM:
-					LOG_DBG("ITS RX CMD: Stop stream");
+					LOG_INF("ITS RX CMD: Stop stream");
 					m_new_command_received = app_cmd.its_rx_event.command;
 					//pwm_boost_zero(); //DEEKSHA - Uncomment these 3 lines later
 					//hm_i2c_write_8b(CNTL1,0x08, SLAV_ADDR_MAG);
@@ -247,20 +247,20 @@ static void app_bt_thread_func(void)
 					}
 					break;
 				case ITS_RX_CMD_CHANGE_RESOLUTION:
-					LOG_DBG("ITS RX CMD: Change res");
+					LOG_INF("ITS RX CMD: Change res");
 					if (app_callback_change_resolution) {
 						app_callback_change_resolution(app_cmd.its_rx_event.data[0]);
 					}
 					break;
 				case ITS_RX_CMD_CHANGE_PHY:
-					LOG_DBG("ITS RX CMD: Change phy (%i)", app_cmd.its_rx_event.data[0]);
+					LOG_INF("ITS RX CMD: Change phy (%i)", app_cmd.its_rx_event.data[0]);
 					err = bt_conn_le_phy_update(current_conn, (app_cmd.its_rx_event.data[0] == 1) ? BT_CONN_LE_PHY_PARAM_2M : BT_CONN_LE_PHY_PARAM_1M);
 					if (err) {
 						LOG_ERR("Phy update request failed: %d",  err);
 					}
 					break;
 				case ITS_RX_CMD_SEND_BLE_PARAMS:
-					LOG_DBG("ITS RX CMD: Send ble params");
+					LOG_INF("ITS RX CMD: Send ble params");
 					m_new_command_received = app_cmd.its_rx_event.command;
 					break;
 

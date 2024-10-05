@@ -7,11 +7,9 @@
 #define lvld_timer_pause  nrf_drv_timer_disable
 #define lvld_timer_run  nrf_drv_timer_enable
 
-//#define spi_buffer_size 100
 #define spi_buffer_size 100
 #define ROW_INIT 100
 #define total_spi_buffer_size_max 32000
-//#define total_spi_buffer_size_max 10000
 #define total_spi_buffer_size 10000
 extern uint8_t LINE_NUM;
 
@@ -45,8 +43,6 @@ extern uint8_t LINE_NUM;
 #define MEM_INIT  0
 #define MEM_INIT_VALUE 0x11
 #define FRAME_VLD_INT 1//Use the frame valid in the code
-#define RELEASE_CODE  1//Get rid of the print stuff
-//#define RELEASE_CODE 0//Get rid of the print stuff //DEEKSHA
 #define CAM_CLK_GATING 1//Turns off camera clock when not taking pictures
 #define CAM_SINGLE_CAPTURE_POWER_FIX 0//after signle capture the camera power stays high for this reason I power cycle the camera each time
 #define POR_DELAY 200
@@ -73,24 +69,6 @@ extern uint8_t LINE_NUM;
 #define PWM_STEPS_NUM 200
 #define PWM_STEPS_NUM_DOWN 15
 #define PWM_STEP_DELAY 1
-
-//Got from HM01B0_CLK.h 
-#if defined(BOARD_PCA10056)
-#define HM_CLK 15  /**< Pin number for output. */
-#endif 
-
-#if defined(BOARD_PCA10040)
-#define HM_CLK 11  /**< Pin number for output. */
-#endif 
-
-//Got from HM01B0_GPIO.h 
-#define BLE_START_PIN_VALUE 31
-#define FRAME_VLD 22
-#define LINE_VLD 19
-//#define CAM_POWER_VALUE 23
-#define CAM_POWER_VALUE 18
-#define CAM_SPI_CS_VALUE 25
-//#define CAM_SPI_CS_VALUE 20
 
 //#define ACC_POWER_VALUE 24
 #define ACC_POWER_VALUE 24

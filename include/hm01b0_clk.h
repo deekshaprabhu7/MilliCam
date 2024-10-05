@@ -6,12 +6,6 @@
 #include <nrfx_gpiote.h>
 #include "gpio.h"
 
-//#define NRFX_LOG_MODULE                 EXAMPLE
-//#define NRFX_EXAMPLE_CONFIG_LOG_ENABLED 1
-//#define NRFX_EXAMPLE_CONFIG_LOG_LEVEL   3
-//#include <nrfx_log.h>
-
-
 /**
  * @defgroup nrfx_gppi_one_to_one_example One-to-one GPPI example
  * @{

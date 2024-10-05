@@ -17,13 +17,11 @@
 extern nrfx_spis_t spis_inst;
 
 extern uint8_t m_tx_buf[1];                        /**< TX buffer. */
-//extern uint8_t m_rx_buf[total_spi_buffer_size_max+200];       /**< RX buffer. 200 added for the ACC and Mag data */
 extern uint8_t m_rx_buf[total_spi_buffer_size_max+200];       /**< RX buffer. 200 added for the ACC and Mag data */
 extern uint16_t m_length_rx;        /**< Transfer length. */
 extern uint16_t m_length_rx_done;       /**< Transfer length. */
 extern uint8_t m_length_tx;
 extern volatile bool spis_xfer_done;
-//extern volatile int spis_xfer_done();
 
 void spi_init();
 

@@ -17,20 +17,13 @@
 #define LOW 0
 
 #define FRAME_VALID_PIN 27 //gpio0
-//#define FRAME_VALID_PIN NRF_GPIO_PIN_MAP(1, 4)
 #define LINE_VALID_PIN 25 //gpio0
-//#define MCLK_PIN NRF_GPIO_PIN_MAP(0, 27) //gpio0
 #define MCLK_PIN 26 //gpio0
 #define CAM_SPI_GPIO_CS_PIN 11 //gpio1
-#define CAM_SPI_CS_PIN 12 //gpio1
-#define CAM_SPI_MOSI_PIN 14 //gpio1
-#define CAM_SPI_MISO_PIN 13 //gpio1
-#define CAM_SPI_SCK_PIN 15 //gpio1
+
 #define TEST_PIN 4 //gpio0
 
 #define CAM_SPI_PIN_MASK(pin) (1 << (pin))
-
-#define BOARD_PCA10040 1 //DEEKSHA - Rewrite logic for this
 
 extern const struct device *gpio0;
 extern const struct device *gpio1;

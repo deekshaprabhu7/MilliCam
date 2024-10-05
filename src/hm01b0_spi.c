@@ -3,8 +3,8 @@
 
 LOG_MODULE_REGISTER(SPIModule, CONFIG_LOG_DEFAULT_LEVEL);
 
-uint8_t m_tx_buf[1] = {0};                           /**< TX buffer. */
-uint8_t m_rx_buf[total_spi_buffer_size_max+200] = {0xAA};       /**< RX buffer. 200 added for the ACC and Mag data */
+uint8_t m_tx_buf[1] = {0};     /**< TX buffer. */
+uint8_t m_rx_buf[total_spi_buffer_size_max+200] = {0xAA};   /**< RX buffer. 200 added for the ACC and Mag data */
 uint16_t m_length_rx = spi_buffer_size;        /**< Transfer length. */
 uint16_t m_length_rx_done = 0;        /**< Transfer length. */
 uint8_t m_length_tx = 0;        /**< Transfer length. */
@@ -59,10 +59,9 @@ const struct spi_config spi_slave_cfg = {
 		return error;
 	}
 else {
-        //LOG_ERR("NO SPI slave transceive error: %i", error);
         error = spi_slave_check_for_message();
         if (error != 0) {
-            LOG_INF("SPI slave check for message error: %i", error);
+            //LOG_ERR("SPI slave check for message error: %i", error); //DEEKSHA: Uncomment after SPI bug Fix
         }
     }
 }
@@ -72,7 +71,7 @@ void spi_init(void)
 {
 	spi_slave_dev = DEVICE_DT_GET(MY_SPI_SLAVE);
 	if(!device_is_ready(spi_slave_dev)) {
-		LOG_INF("SPI slave device not ready!");
+		LOG_ERR("SPI slave device not ready!");
 	}
     else{
         LOG_INF("SPI slave device is ready!");
@@ -92,7 +91,7 @@ int spi_slave_check_for_message(void)
 		return 0;
 	}
 	else {
-        //LOG_INF("SPI transfer not completed yet."); //DEEKSHA Uncomment later
+        //LOG_ERR("SPI transfer not completed yet."); //DEEKSHA Uncomment once SPI is fixed
         return -1;
     }
 }
